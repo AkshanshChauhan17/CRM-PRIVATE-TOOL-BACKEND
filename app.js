@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const userRoutes = require('./routes/userRoutes');
+const dealRoutes = require('./routes/dealRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api', userRoutes);
+app.use('/api', dealRoutes);
 
 // Start the server
 app.listen(PORT, () => {
