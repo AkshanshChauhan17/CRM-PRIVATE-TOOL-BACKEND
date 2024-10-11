@@ -24,10 +24,12 @@ router.get('/deal/:id', (req, res) => {
 
 // Add new deal
 router.post('/deal', (req, res) => {
-    const newDeal = { deal_id: uuid.v4(), deal_name: req.body.deal_name, deal_cost: req.body.deal_cost, deal_stage: req.body.deal_stage };
+    const newDeal = { deal_id: uuid.v4(), ...req.body };
     const sql = 'INSERT INTO deals SET ?';
     db.query(sql, newDeal, (err, results) => {
-        if (err) throw err;
+        if (err) {
+            return res.json({ error: "INVALID BODY INPUT" })
+        };
         res.json({...newDeal });
     });
 });
