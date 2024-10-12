@@ -28,16 +28,31 @@ router.post('/deal', (req, res) => {
     const sql = 'INSERT INTO deals SET ?';
     db.query(sql, newDeal, (err, results) => {
         if (err) {
-            return res.json({ error: "INVALID BODY INPUT" })
-        };
+            return res.json({ error: "INVALID BODY INPUT" });
+        }
         res.json({...newDeal });
     });
 });
 
-//Delete deal by id
+// Update deal by ID
+router.put('/deal/:id', (req, res) => {
+    const { id } = req.params;
+    const updatedDeal = req.body;
+
+    const sql = 'UPDATE deals SET ? WHERE deal_id = ?';
+    db.query(sql, [updatedDeal, id], (err, results) => {
+        if (err) throw err;
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Deal not found' });
+        }
+        res.json({ message: 'Deal updated successfully', updatedDeal });
+    });
+});
+
+// Delete deal by ID
 router.delete('/deal', (req, res) => {
     const deal_id = req.body.deal_id;
-    const sql = 'DELETE FROM deals WHERE deal_id=?';
+    const sql = 'DELETE FROM deals WHERE deal_id = ?';
     db.query(sql, deal_id, (err, results) => {
         if (err) throw err;
         res.json(results);
