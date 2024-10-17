@@ -59,4 +59,16 @@ router.delete('/deal', (req, res) => {
     });
 });
 
+router.get('/deals/pipeline/:pipelineId', (req, res) => {
+    const { pipelineId } = req.params;
+    const query = 'SELECT * FROM deals WHERE pipeline_id = ?';
+
+    db.query(query, [pipelineId], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
+});
+
 module.exports = router;

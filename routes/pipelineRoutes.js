@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db'); // MySQL connection setup
+const { v4 } = require('uuid');
 
 // Get all pipelines
 router.get('/pipelines', (req, res) => {
@@ -33,13 +34,27 @@ router.get('/pipelines/:id', (req, res) => {
 // Create a new pipeline
 router.post('/pipelines', (req, res) => {
     const { pipeline_name, description } = req.body;
-    const query = 'INSERT INTO pipelines (pipeline_name, description) VALUES (?, ?)';
+    var pipeline_id = v4();
+    const query = 'INSERT INTO pipelines (pipeline_name, description, pipeline_id) VALUES (?, ?, ?)';
+    const query_pre = 'INSERT INTO stages (stage_id, stage_name, stage_order, description, pipeline_id) VALUES ?';
+    const records = [
+        [1, "Qualified", 1, "Qualified", pipeline_id],
+        [2, "Content Made", 2, "Content Made", pipeline_id],
+        [3, "Demo Scheduled", 3, "Demo Scheduled", pipeline_id],
+        [4, "Proposal Made", 4, "Proposal Made", pipeline_id],
+        [5, "Negotiations Started", 5, "Negotiations Started", pipeline_id]
+    ];
 
-    db.query(query, [pipeline_name, description], (err, result) => {
+    db.query(query_pre, [records], (err, result) => {
         if (err) {
-            return res.status(500).json({ error: err.message });
+            return res.status(500).json({ on: "1", error: err.message });
         }
-        res.status(201).json({ message: 'Pipeline created successfully', pipeline_id: result.insertId });
+        db.query(query, [pipeline_name, description, pipeline_id], (err, result) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.status(201).json({ message: 'Pipeline created successfully', pipeline_id: pipeline_id });
+        });
     });
 });
 
