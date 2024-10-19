@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db'); // MySQL connection setup
+const db = require('../db');
 const { v4 } = require('uuid');
 
 // Get all pipelines
