@@ -2,6 +2,17 @@ const express = require('express');
 const db = require('../db');
 const router = express.Router();
 
+router.get('/users', (req, res) => {
+    let sql = 'SELECT user_id, name, email FROM users WHERE role != ?';
+
+    db.query(sql, ["admin"], (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error fetching deals', error: err });
+        }
+        res.status(200).json(results);
+    });
+});
+
 // Get all deals for the user or admin
 router.get('/deals', (req, res) => {
     const { userId, role } = req.query; // Fetch userId and role from query (admin/user)

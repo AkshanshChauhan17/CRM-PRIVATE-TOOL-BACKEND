@@ -129,7 +129,7 @@ router.post('/login_by_token', (req, res) => {
                 }
 
                 // Successful login
-                res.json({ message: 'Login successful', user: { name: user.name, email: user.email, role: user.role } });
+                res.json({ message: 'Login successful', user: { name: user.name, email: user.email, role: user.role, user_id: user.user_id } });
             });
         });
     });

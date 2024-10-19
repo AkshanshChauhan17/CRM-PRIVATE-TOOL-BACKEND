@@ -1,19 +1,22 @@
 const express = require('express');
 const mysql = require('mysql');
 const db = require('../db');
+const { v4 } = require('uuid');
 const router = express.Router();
 
 // Route to add a comment
 router.post('/deals/:dealId/comments', (req, res) => {
     const { dealId } = req.params;
-    const { comment, userId, user_name } = req.body; // Expecting userId from the request body
+    const { comment, userId, user_name, user_role } = req.body; // Expecting userId from the request body
 
-    if (!comment || !userId || !user_name) {
+    const comment_id = v4();
+
+    if (!comment || !userId) {
         return res.status(400).json({ error: 'Comment and user ID are required' });
     }
 
-    const query = 'INSERT INTO comments (deal_id, comment, user_id) VALUES (?, ?, ?)';
-    db.query(query, [dealId, comment, userId], (err, results) => {
+    const query = 'INSERT INTO comments (comment_id, deal_id, comment, user_id, user_name, user_role) VALUES (?, ?, ?, ?, ?, ?)';
+    db.query(query, [comment_id, dealId, comment, userId, user_name, user_role], (err, results) => {
         if (err) {
             console.error('Error adding comment:', err);
             return res.status(500).json({ error: 'Database error' });

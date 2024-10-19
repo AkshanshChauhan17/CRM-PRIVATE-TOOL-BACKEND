@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const uuid = require('uuid');
+const checkAdminRole = require('../middleware/isAdmin');
 
 // Get all deals
 router.get('/deals', (req, res) => {
@@ -52,6 +53,7 @@ router.put('/deal/:id', (req, res) => {
 // Delete deal by ID
 router.delete('/deal', (req, res) => {
     const deal_id = req.body.deal_id;
+    console.log(deal_id)
     const sql = 'DELETE FROM deals WHERE deal_id = ?';
     db.query(sql, deal_id, (err, results) => {
         if (err) throw err;
@@ -59,16 +61,29 @@ router.delete('/deal', (req, res) => {
     });
 });
 
-router.get('/deals/pipeline/:pipelineId', (req, res) => {
-    const { pipelineId } = req.params;
-    const query = 'SELECT * FROM deals WHERE pipeline_id = ?';
+router.get('/deals/pipeline/:pipelineId/:assigned_id', checkAdminRole, (req, res) => {
+    const { pipelineId, assigned_id } = req.params;
+    var query = "";
 
-    db.query(query, [pipelineId], (err, results) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        res.json(results);
-    });
+    if (req.isAdmin) {
+        query = 'SELECT * FROM deals WHERE pipeline_id = ?';
+
+        db.query(query, [pipelineId], (err, results) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json(results);
+        });
+    } else {
+        query = 'SELECT * FROM deals WHERE pipeline_id = ? AND assign_to = ?';
+
+        db.query(query, [pipelineId, assigned_id], (err, results) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json(results);
+        });
+    };
 });
 
 module.exports = router;
