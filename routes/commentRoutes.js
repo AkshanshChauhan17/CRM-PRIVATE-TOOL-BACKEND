@@ -22,6 +22,10 @@ router.post('/deals/:dealId/comments', (req, res) => {
             return res.status(500).json({ error: 'Database error' });
         }
 
+        db.query("INSERT INTO activities (deal_id, user_id, activity_type, details) VALUES (?, ?, ?, ?)", [dealId, userId, "comment", `User Post new comment on ${new Date().toUTCString()} by User Id: ${userId} on Deal Id ${dealId}`], () => {
+            console.info(`COMMENT ACTIVITY RECORDED [UID: ${userId}]`)
+        });
+
         // Return the new comment
         const newComment = { comment_id: results.insertId, deal_id: dealId, comment, user_id: userId };
         res.status(201).json(newComment);

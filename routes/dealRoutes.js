@@ -36,8 +36,8 @@ router.post('/deal', (req, res) => {
 });
 
 // Update deal by ID
-router.put('/deal/:id', (req, res) => {
-    const { id } = req.params;
+router.put('/deal/:id/:uid', (req, res) => {
+    const { id, uid } = req.params;
     const updatedDeal = req.body;
 
     const sql = 'UPDATE deals SET ? WHERE deal_id = ?';
@@ -46,6 +46,11 @@ router.put('/deal/:id', (req, res) => {
         if (results.affectedRows === 0) {
             return res.status(404).json({ error: 'Deal not found' });
         }
+
+        db.query("INSERT INTO activities (deal_id, user_id, activity_type, details) VALUES (?, ?, ?, ?)", [id, uid, "stage change", `Deal updated on ${new Date().toUTCString()} by User Id: ${uid} Deal Id: ${id} Deal updated content ${JSON.stringify(updatedDeal)}`], () => {
+            console.info(`UPDATE IN DEAL ACTIVITY RECORDED [UID: ${uid}, DID: ${JSON.stringify(updatedDeal)}]`)
+        });
+
         res.json({ message: 'Deal updated successfully', updatedDeal });
     });
 });
