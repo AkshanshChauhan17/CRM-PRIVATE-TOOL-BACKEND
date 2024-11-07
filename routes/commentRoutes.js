@@ -1,5 +1,4 @@
 const express = require('express');
-const mysql = require('mysql');
 const db = require('../db');
 const { v4 } = require('uuid');
 const sendNotificationToAdmin = require('../middleware/notification');
@@ -25,7 +24,7 @@ router.post('/deals/:dealId/comments', (req, res, next) => {
             return res.status(500).json({ error: 'Database error' });
         }
 
-        db.query("INSERT INTO activities (deal_id, user_id, activity_type, details) VALUES (?, ?, ?, ?)", [dealId, userId, "comment", `User Post new comment on ${new Date().toUTCString()} by User Id: ${userId} on Deal Id ${dealId}`], () => {
+        db.query("INSERT INTO activities (deal_id, user_id, activity_type, details) VALUES (?, ?, ?, ?)", [dealId, userId, "comment", `[${new Date().toUTCString()}] ${comment}`], () => {
             console.info(`COMMENT ACTIVITY RECORDED [UID: ${userId}]`)
         });
 
