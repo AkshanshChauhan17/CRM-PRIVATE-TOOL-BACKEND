@@ -91,4 +91,24 @@ router.get('/deals/pipeline/:pipelineId/:assigned_id', checkAdminRole, (req, res
     };
 });
 
+router.put('/deals/assign', async(req, res) => {
+    const { deal_ids, user_id } = req.body;
+
+    if (!deal_ids || !user_id || !Array.isArray(deal_ids)) {
+        return res.status(400).json({ error: 'Invalid data format' });
+    }
+
+    try {
+        // Assuming you have a deals table where you can update the user_id for each deal
+        const query = `UPDATE deals SET assign_to = ? WHERE deal_id IN (?)`;
+
+        await db.query(query, [user_id, deal_ids]);
+
+        res.status(200).json({ message: 'Deals successfully assigned to user.' });
+    } catch (error) {
+        console.error('Error updating deals:', error);
+        res.status(500).json({ error: 'An error occurred while assigning deals.' });
+    }
+});
+
 module.exports = router;

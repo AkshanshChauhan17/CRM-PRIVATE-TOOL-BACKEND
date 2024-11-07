@@ -13,8 +13,36 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const schedulesRoutes = require('./routes/scheduleRoutes');
 const conversationRoutes = require('./routes/conversationRoutes');
 const imageRoutes = require('./routes/imageRoutes');
+const activityRoutes = require('./routes/activityRoutes');
+const socketio = require('socket.io');
+const http = require('http');
+
 
 const app = express();
+const server = http.createServer(app);
+const io = socketio(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
+app.set('io', io);
+
+io.on('connection', (socket) => {
+    console.log(`Client connected: ${socket.id}`);
+
+    // Join a specific room for admin, which could be based on the admin's ID
+    socket.on('joinAdminRoom', (user_data) => {
+        console.log(`Admin ${user_data.user_id} joined room admin_${user_data.user_id}`);
+        socket.join(`admin_${user_data.user_id}`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected');
+    });
+});
+
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -28,8 +56,9 @@ app.use('/api/deals/upload', uploadRoutes);
 app.use('/api/schedules', schedulesRoutes);
 app.use('/api/deals', conversationRoutes);
 app.use('/api/img/conv', imageRoutes);
+app.use('/api', activityRoutes);
 
 // Start the server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

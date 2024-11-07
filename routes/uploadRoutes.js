@@ -11,14 +11,14 @@ const upload = multer({ dest: 'uploads/' });
 
 // Route to handle the file upload and data processing
 router.post('/', upload.single('dealsFile'), async(req, res) => {
-    const { deal_owner, pipeline_id } = req.body;
+    const { deal_owner, pipeline_id, user_id } = req.body;
 
     // Check if the file is uploaded
     if (!req.file) {
         return res.status(400).send('No file uploaded');
     }
 
-    let workbook, worksheet, values;
+    let workbook, worksheet, values, values2;
 
     try {
         // Read and parse Excel file
@@ -39,8 +39,19 @@ router.post('/', upload.single('dealsFile'), async(req, res) => {
             row["Name"],
             row["Number"],
             row["Time Zone"],
+            row["Address"],
             pipeline_id,
             deal_owner
+        ]);
+
+        // Prepare values2 for the comments table insertion
+        values2 = worksheet.map((row, index) => [
+            uuidv4(),
+            values[index][0], // Use the generated deal_id from `values`
+            row["Comment"],
+            user_id,
+            deal_owner,
+            "admin"
         ]);
 
         // Log values to check structure
@@ -55,13 +66,20 @@ router.post('/', upload.single('dealsFile'), async(req, res) => {
         // Start a transaction to ensure atomicity
         await db.beginTransaction();
 
-        const sql = `
+        // Insert into the deals table
+        const sqlDeals = `
           INSERT INTO deals 
-          (deal_id, deal_name, customer_email, contact_person, customer_number, time_zone, pipeline_id, deal_owner) 
+          (deal_id, deal_name, customer_email, contact_person, customer_number, time_zone, customer_address, pipeline_id, deal_owner) 
           VALUES ?`;
 
-        // Insert values into the database
-        await db.query(sql, [values]);
+        // Perform the deal insertion
+        await db.query(sqlDeals, [values]);
+
+        // Insert into the comments table
+        const sqlComments = `
+          INSERT INTO comments (comment_id, deal_id, comment, user_id, user_name, user_role) 
+          VALUES ?`;
+        await db.query(sqlComments, [values2]);
 
         // Commit the transaction
         await db.commit();

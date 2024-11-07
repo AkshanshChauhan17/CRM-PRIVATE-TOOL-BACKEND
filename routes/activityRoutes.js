@@ -9,6 +9,15 @@ const activityTracker = () => {
     });
 };
 
+router.get('/activities', (req, res) => {
+    db.query("SELECT * FROM activities WHERE activity_type = ? ORDER BY created_at DESC ", ["comment"], (err, result) => {
+        if (err) {
+            return res.json([]);
+        };
+        res.json(result);
+    });
+});
+
 // Example route to demonstrate activity tracking
 router.get('/activity-demo/:user_id', activityTracker, (req, res) => {
     res.status(200).send(`Activity tracked for user with ID: ${req.params.user_id}`);

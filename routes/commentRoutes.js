@@ -2,10 +2,13 @@ const express = require('express');
 const mysql = require('mysql');
 const db = require('../db');
 const { v4 } = require('uuid');
+const sendNotificationToAdmin = require('../middleware/notification');
 const router = express.Router();
 
 // Route to add a comment
-router.post('/deals/:dealId/comments', (req, res) => {
+router.post('/deals/:dealId/comments', (req, res, next) => {
+    sendNotificationToAdmin(req.app.get('io'))(req, res, next);
+}, (req, res) => {
     const { dealId } = req.params;
     const { comment, userId, user_name, user_role } = req.body; // Expecting userId from the request body
 
