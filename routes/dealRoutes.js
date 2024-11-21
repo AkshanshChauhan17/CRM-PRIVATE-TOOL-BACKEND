@@ -4,7 +4,6 @@ const db = require('../db');
 const uuid = require('uuid');
 const checkAdminRole = require('../middleware/isAdmin');
 
-// Get all deals
 router.get('/deals', (req, res) => {
     const sql = 'SELECT * FROM deals';
     db.query(sql, (err, results) => {
@@ -13,7 +12,6 @@ router.get('/deals', (req, res) => {
     });
 });
 
-// Get deal by ID
 router.get('/deal/:id', (req, res) => {
     const { id } = req.params;
     const sql = 'SELECT * FROM deals WHERE deal_id = ?';
@@ -23,7 +21,6 @@ router.get('/deal/:id', (req, res) => {
     });
 });
 
-// Add new deal
 router.post('/deal', (req, res) => {
     const newDeal = { deal_id: uuid.v4(), ...req.body };
     const sql = 'INSERT INTO deals SET ?';
@@ -35,7 +32,6 @@ router.post('/deal', (req, res) => {
     });
 });
 
-// Update deal by ID
 router.put('/deal/:id/:uid', (req, res) => {
     const { id, uid } = req.params;
     const updatedDeal = req.body;
@@ -55,7 +51,6 @@ router.put('/deal/:id/:uid', (req, res) => {
     });
 });
 
-// Delete deal by ID
 router.delete('/deal', (req, res) => {
     const deal_id = req.body.deal_id;
     console.log(deal_id)
@@ -99,7 +94,6 @@ router.put('/deals/assign', async(req, res) => {
     }
 
     try {
-        // Assuming you have a deals table where you can update the user_id for each deal
         const query = `UPDATE deals SET assign_to = ? WHERE deal_id IN (?)`;
 
         await db.query(query, [user_id, deal_ids]);

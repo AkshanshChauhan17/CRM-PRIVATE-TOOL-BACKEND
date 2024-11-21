@@ -4,12 +4,11 @@ const { v4 } = require('uuid');
 const sendNotificationToAdmin = require('../middleware/notification');
 const router = express.Router();
 
-// Route to add a comment
 router.post('/deals/:dealId/comments', (req, res, next) => {
     sendNotificationToAdmin(req.app.get('io'))(req, res, next);
 }, (req, res) => {
     const { dealId } = req.params;
-    const { comment, userId, user_name, user_role } = req.body; // Expecting userId from the request body
+    const { comment, userId, user_name, user_role } = req.body;
 
     const comment_id = v4();
 
@@ -28,13 +27,11 @@ router.post('/deals/:dealId/comments', (req, res, next) => {
             console.info(`COMMENT ACTIVITY RECORDED [UID: ${userId}]`)
         });
 
-        // Return the new comment
         const newComment = { comment_id: results.insertId, deal_id: dealId, comment, user_id: userId };
         res.status(201).json(newComment);
     });
 });
 
-// Route to get comments for a specific deal
 router.get('/deals/:dealId/comments', (req, res) => {
     const { dealId } = req.params;
 
@@ -49,7 +46,6 @@ router.get('/deals/:dealId/comments', (req, res) => {
     });
 });
 
-// Optional: Route to delete a comment
 router.delete('/comments/:commentId', (req, res) => {
     const { commentId } = req.params;
 
@@ -64,7 +60,7 @@ router.delete('/comments/:commentId', (req, res) => {
             return res.status(404).json({ error: 'Comment not found' });
         }
 
-        res.status(204).send(); // No content to return
+        res.status(204).send();
     });
 });
 
